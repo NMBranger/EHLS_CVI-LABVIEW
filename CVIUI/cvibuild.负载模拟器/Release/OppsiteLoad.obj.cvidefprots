@@ -1,0 +1,112 @@
+[InitOppsiteTestPara]
+Class="Function"
+Prototype="void InitOppsiteTestPara();"
+
+[OppsitePanelInit]
+Class="Function"
+Prototype="int OppsitePanelInit();"
+
+[OppositeSetScreenCycNum]
+Class="Function"
+Prototype="void OppositeSetScreenCycNum();"
+
+[InitOppsiteDisIndex]
+Class="Function"
+Prototype="void InitOppsiteDisIndex();"
+
+[Octrlparadown]
+Class="Function"
+Prototype="void Octrlparadown();"
+
+[InitOppsiteCtrlSet]
+Class="Function"
+Prototype="void InitOppsiteCtrlSet();"
+
+[InitOppsiteCtrlPara]
+Class="Function"
+Prototype="void InitOppsiteCtrlPara();"
+
+[LightOppositeParaSet]
+Class="Function"
+Prototype="void LightOppositeParaSet();"
+
+[OppsitePanelCallback]
+Class="Function"
+Prototype="int OppsitePanelCallback(int panel, int event, void *callbackData, int eventData1, int eventData2);"
+
+[YRangeChange]
+Class="Function"
+Prototype="int YRangeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppsiteSaveCallback]
+Class="Function"
+Prototype="int OppsiteSaveCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppsiteRecordCallback]
+Class="Function"
+Prototype="int OppsiteRecordCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppsiteExitCallback]
+Class="Function"
+Prototype="int OppsiteExitCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppsiteStartCallback]
+Class="Function"
+Prototype="int OppsiteStartCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppsiteResetCallback]
+Class="Function"
+Prototype="int OppsiteResetCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppDisChangeCallback]
+Class="Function"
+Prototype="int OppDisChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[TChannelChooseCallback]
+Class="Function"
+Prototype="int TChannelChooseCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[AChannelChooseCallback]
+Class="Function"
+Prototype="int AChannelChooseCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[TestTypeChangeCallback]
+Class="Function"
+Prototype="int TestTypeChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppsiteSetParaCallback]
+Class="Function"
+Prototype="int OppsiteSetParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppsiteSaveParaCallback]
+Class="Function"
+Prototype="int OppsiteSaveParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OilControlCallback]
+Class="Function"
+Prototype="int OilControlCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppDataReDisplay]
+Class="Function"
+Prototype="int OppDataReDisplay(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[TOppDisChangeCallback]
+Class="Function"
+Prototype="int TOppDisChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[AOppDisChangeCallback]
+Class="Function"
+Prototype="int AOppDisChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[NetWatchDog2]
+Class="Function"
+Prototype="int NetWatchDog2(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OEnablecallback]
+Class="Function"
+Prototype="int OEnablecallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppsiteDownParaCallback]
+Class="Function"
+Prototype="int OppsiteDownParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+

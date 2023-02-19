@@ -1,0 +1,68 @@
+[HPSPanelInit]
+Class="Function"
+Prototype="int HPSPanelInit();"
+
+[HPSPanelClose]
+Class="Function"
+Prototype="int HPSPanelClose();"
+
+[HPSClose]
+Class="Function"
+Prototype="int HPSClose();"
+
+[DisplayHPSPanel]
+Class="Function"
+Prototype="void DisplayHPSPanel();"
+
+[HPSPanelExit]
+Class="Function"
+Prototype="void HPSPanelExit();"
+
+[set_sys_p]
+Class="Function"
+Prototype="int set_sys_p(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[sys_start]
+Class="Function"
+Prototype="int sys_start(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[sys_start2]
+Class="Function"
+Prototype="int sys_start2(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[cool]
+Class="Function"
+Prototype="int cool(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[source_on]
+Class="Function"
+Prototype="int source_on(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[load_on]
+Class="Function"
+Prototype="int load_on(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[quit]
+Class="Function"
+Prototype="int quit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HPStimer]
+Class="Function"
+Prototype="int HPStimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[com_select]
+Class="Function"
+Prototype="int com_select(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[clear_box]
+Class="Function"
+Prototype="int clear_box(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[valve_ctrl_select]
+Class="Function"
+Prototype="int valve_ctrl_select(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[reset]
+Class="Function"
+Prototype="int reset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+

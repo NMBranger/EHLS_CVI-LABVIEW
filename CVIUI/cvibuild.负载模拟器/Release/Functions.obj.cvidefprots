@@ -1,0 +1,4 @@
+[ExitPoint]
+Class="Function"
+Prototype="void ExitPoint();"
+

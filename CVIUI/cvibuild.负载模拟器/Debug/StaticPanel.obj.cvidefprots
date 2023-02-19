@@ -1,0 +1,116 @@
+[StaticPanelInit]
+Class="Function"
+Prototype="int StaticPanelInit();"
+
+[InitStaticCtrlSet]
+Class="Function"
+Prototype="void InitStaticCtrlSet();"
+
+[Sctrlparadown]
+Class="Function"
+Prototype="void Sctrlparadown();"
+
+[InitStaticTestPara]
+Class="Function"
+Prototype="void InitStaticTestPara();"
+
+[StaticSetScreenCycNum]
+Class="Function"
+Prototype="void StaticSetScreenCycNum();"
+
+[InitStaticDisIndex]
+Class="Function"
+Prototype="void InitStaticDisIndex();"
+
+[InitStaticCtrlPara]
+Class="Function"
+Prototype="void InitStaticCtrlPara();"
+
+[LightStaticParaSet]
+Class="Function"
+Prototype="void LightStaticParaSet();"
+
+[StaticPanelCallback]
+Class="Function"
+Prototype="int StaticPanelCallback(int panel, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticRecordCallback]
+Class="Function"
+Prototype="int StaticRecordCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticSaveCallback]
+Class="Function"
+Prototype="int StaticSaveCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticStartCallback]
+Class="Function"
+Prototype="int StaticStartCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticResetCallback]
+Class="Function"
+Prototype="int StaticResetCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticExitCallback]
+Class="Function"
+Prototype="int StaticExitCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaDisplayChangeCallback]
+Class="Function"
+Prototype="int StaDisplayChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[TStaDisplayChangeCallback]
+Class="Function"
+Prototype="int TStaDisplayChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaYRangeChangeCallback]
+Class="Function"
+Prototype="int StaYRangeChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticSetParaCallback]
+Class="Function"
+Prototype="int StaticSetParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticDownParaCallback]
+Class="Function"
+Prototype="int StaticDownParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticSaveParaCallback]
+Class="Function"
+Prototype="int StaticSaveParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaCh1TesttypeChange]
+Class="Function"
+Prototype="int StaCh1TesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaCh2TesttypeChange]
+Class="Function"
+Prototype="int StaCh2TesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaCh3TesttypeChange]
+Class="Function"
+Prototype="int StaCh3TesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaCh4TesttypeChange]
+Class="Function"
+Prototype="int StaCh4TesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticOilCtrlCallback]
+Class="Function"
+Prototype="int StaticOilCtrlCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticDataReDisplay]
+Class="Function"
+Prototype="int StaticDataReDisplay(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaTabChanelSelect]
+Class="Function"
+Prototype="int StaTabChanelSelect(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[NetWatchDog]
+Class="Function"
+Prototype="int NetWatchDog(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[Enablecallback]
+Class="Function"
+Prototype="int Enablecallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+

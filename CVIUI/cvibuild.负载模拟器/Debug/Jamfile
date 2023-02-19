@@ -1,0 +1,99 @@
+CCFLAGS = -g ;
+HDRS = 	"c:\\Program Files\\Ardence\\RTX SDK\\include"
+	"c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\activex\\word"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\activex\\excel"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\custctrl"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\custctrl\\custsupp"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\cvirtsup"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\datasock"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\daqUtil"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\printing"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\toolbox"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\reportgen"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\toolslib\\localui"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\instr"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\toolslib\\custctrl"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\toolslib\\custctrl\\custsupp"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\instr"
+	"C:\\ProgramData\\National Instruments\\CVI2017\\instr"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\include"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\include"
+	"C:\\ProgramData\\National Instruments\\CVI2017\\include"
+	"C:\\ProgramData\\National Instruments\\CVI\\include"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\include\\ansi"
+	"c:\\program files (x86)\\national instruments\\cvi2017\\include\\clang\\3.3"
+	"C:\\Program Files (x86)\\IVI Foundation\\IVI\\Include"
+	"C:\\Program Files (x86)\\IVI Foundation\\VISA\\winnt\\include"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\MSDTRedistributables\\SDKHeaderFiles\\8.1"
+	"c:\\Program Files (x86)\\National Instruments\\CVI2017\\bin"
+	"c:\\ProgramData\\National Instruments\\CVI2017\\bin"
+	"c:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\Bin"
+	;
+include Jamfile_instr ;
+LOCATE on "DataMemory.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "ExchangeMemory.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "ExtraVar.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "Functions.c" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "Functions.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "HILPanel.c" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "HILPanel.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "HPS_Controller.c" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "HPS_Controller.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "HPS_my.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "MainPanel.c" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "MainPanel.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "modbus.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "MotionPanel.c" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "MotionPanel.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "OppsiteLoad.c" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "OppsiteLoad.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "StaticPanel.c" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "StaticPanel.h" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+LOCATE on "VarDef.c" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\Functions.obj" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\Functions.c" ;
+FILENUM on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\Functions.obj" = 1 ;
+DEFPROTS on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\Functions.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\Functions.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\Functions.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\Functions.obj.out" ;
+PrjObjects += "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\Functions.obj" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HILPanel.obj" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\HILPanel.c" ;
+FILENUM on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HILPanel.obj" = 2 ;
+DEFPROTS on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HILPanel.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HILPanel.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HILPanel.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HILPanel.obj.out" ;
+PrjObjects += "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HILPanel.obj" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HPS_Controller.obj" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\HPS_Controller.c" ;
+FILENUM on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HPS_Controller.obj" = 3 ;
+DEFPROTS on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HPS_Controller.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HPS_Controller.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HPS_Controller.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HPS_Controller.obj.out" ;
+PrjObjects += "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\HPS_Controller.obj" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MainPanel.obj" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\MainPanel.c" ;
+FILENUM on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MainPanel.obj" = 4 ;
+DEFPROTS on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MainPanel.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MainPanel.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MainPanel.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MainPanel.obj.out" ;
+PrjObjects += "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MainPanel.obj" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MotionPanel.obj" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\MotionPanel.c" ;
+FILENUM on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MotionPanel.obj" = 5 ;
+DEFPROTS on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MotionPanel.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MotionPanel.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MotionPanel.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MotionPanel.obj.out" ;
+PrjObjects += "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\MotionPanel.obj" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\OppsiteLoad.obj" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\OppsiteLoad.c" ;
+FILENUM on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\OppsiteLoad.obj" = 6 ;
+DEFPROTS on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\OppsiteLoad.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\OppsiteLoad.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\OppsiteLoad.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\OppsiteLoad.obj.out" ;
+PrjObjects += "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\OppsiteLoad.obj" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\StaticPanel.obj" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\StaticPanel.c" ;
+FILENUM on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\StaticPanel.obj" = 7 ;
+DEFPROTS on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\StaticPanel.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\StaticPanel.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\StaticPanel.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\StaticPanel.obj.out" ;
+PrjObjects += "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\StaticPanel.obj" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\VarDef.obj" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\VarDef.c" ;
+FILENUM on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\VarDef.obj" = 8 ;
+DEFPROTS on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\VarDef.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\VarDef.obj.cvidefprots" ;
+OUTFILE on "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\VarDef.obj" = "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\VarDef.obj.out" ;
+PrjObjects += "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\VarDef.obj" ;
+Object "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\resources.res" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\resources.in.rc" ;
+Depends "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\resources.res" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\manifest.xml" ;
+MainFromObjects "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\负载模拟器_dbg.exe" : $(PrjObjects) $(InstrObjects) ;
+Depends "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\负载模拟器_dbg.exe" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\link_options.txt" ;
+Depends "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\负载模拟器_dbg.exe" : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\resources.res" ;
+Depends all : "c:\\Users\\TBHELS\\Desktop\\V20230131\\上位机\\CVIUI\\cvibuild.负载模拟器\\Debug\\负载模拟器_dbg.exe" ;

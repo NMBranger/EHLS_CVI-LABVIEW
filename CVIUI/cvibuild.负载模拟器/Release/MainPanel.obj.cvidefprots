@@ -1,0 +1,48 @@
+[WinMain]
+Class="Function"
+Prototype="int WinMain(struct HINSTANCE__ *hInstance, struct HINSTANCE__ *hPrevInstance, char *lpszCmdLine, int nCmdShow);"
+
+[MainPanelInit]
+Class="Function"
+Prototype="int MainPanelInit();"
+
+[MainPanelCallback]
+Class="Function"
+Prototype="int MainPanelCallback(int panel, int event, void *callbackData, int eventData1, int eventData2);"
+
+[NetDetectCallback]
+Class="Function"
+Prototype="int NetDetectCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[StaticTestCallback]
+Class="Function"
+Prototype="int StaticTestCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[OppositeTestCallback]
+Class="Function"
+Prototype="int OppositeTestCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionTestCallback]
+Class="Function"
+Prototype="int MotionTestCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILTestCallback]
+Class="Function"
+Prototype="int HILTestCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[SystemSetCallback]
+Class="Function"
+Prototype="int SystemSetCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HySupplyCallback]
+Class="Function"
+Prototype="int HySupplyCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HelpCallback]
+Class="Function"
+Prototype="int HelpCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[ExitCallback]
+Class="Function"
+Prototype="int ExitCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+

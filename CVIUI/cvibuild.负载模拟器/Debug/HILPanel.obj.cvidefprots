@@ -1,0 +1,112 @@
+[HILPanelInit]
+Class="Function"
+Prototype="int HILPanelInit();"
+
+[Hctrlparadown]
+Class="Function"
+Prototype="void Hctrlparadown();"
+
+[InitHILCtrlSet]
+Class="Function"
+Prototype="void InitHILCtrlSet();"
+
+[InitHILTestPara]
+Class="Function"
+Prototype="void InitHILTestPara();"
+
+[HILSetScreenCycNum]
+Class="Function"
+Prototype="void HILSetScreenCycNum();"
+
+[InitHILDisIndex]
+Class="Function"
+Prototype="void InitHILDisIndex();"
+
+[InitHILCtrlPara]
+Class="Function"
+Prototype="void InitHILCtrlPara();"
+
+[LightHILParaSet]
+Class="Function"
+Prototype="void LightHILParaSet();"
+
+[HILPanelCallback]
+Class="Function"
+Prototype="int HILPanelCallback(int panel, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILYRangeChangeCallback]
+Class="Function"
+Prototype="int HILYRangeChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILSaveCallback]
+Class="Function"
+Prototype="int HILSaveCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILRecordCallback]
+Class="Function"
+Prototype="int HILRecordCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILDisplayChangeCallback]
+Class="Function"
+Prototype="int HILDisplayChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[AHILDisplayChangeCallback]
+Class="Function"
+Prototype="int AHILDisplayChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILExitCallback]
+Class="Function"
+Prototype="int HILExitCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILResetCallback]
+Class="Function"
+Prototype="int HILResetCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILStartCallback]
+Class="Function"
+Prototype="int HILStartCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILChTesttypeChange]
+Class="Function"
+Prototype="int HILChTesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILSaveParaCallback]
+Class="Function"
+Prototype="int HILSaveParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILSetParaCallback]
+Class="Function"
+Prototype="int HILSetParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILOilCtrlCallback]
+Class="Function"
+Prototype="int HILOilCtrlCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILDataReDisplay]
+Class="Function"
+Prototype="int HILDataReDisplay(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILTabChanelSelect]
+Class="Function"
+Prototype="int HILTabChanelSelect(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILParaTabChanelSelect]
+Class="Function"
+Prototype="int HILParaTabChanelSelect(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[NetWatchDog3]
+Class="Function"
+Prototype="int NetWatchDog3(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[UDPChatCallback]
+Class="Function"
+Prototype="int UDPChatCallback(unsigned int channel, int eventType, int errCode, void *callbackData);"
+
+[HILDownParaCallback]
+Class="Function"
+Prototype="int HILDownParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[HILOliDisplay]
+Class="Function"
+Prototype="int HILOliDisplay(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+

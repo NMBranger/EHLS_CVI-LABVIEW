@@ -1,0 +1,2455 @@
+#include <userint.h> 
+#include "ExtraVar.h"   
+#include <formatio.h>
+#include <utility.h>
+#include "OppsiteLoad.h"
+#include "Functions.h"
+#include "inifile.h" 
+#include <Rtapi.h>
+
+
+#define REMOVE_EXTRA_TORQUE  1
+#define ANY_CHART_TRACE      2
+#define PROPORTION_TRACE     3
+
+const int OppsiteChannel[5]= {0,3,4,1,2};
+extern char DftPathSign; //默认路径标志位
+extern char pathpass[];  //路径存放数组
+extern char originalkey[] ;
+extern int keyerr;
+static int oppstpanel;
+
+/*
+int main (int argc, char *argv[])
+{
+	if (InitCVIRTE (0, argv, 0) == 0)
+		return -1;	// out of memory 
+	if ((oppstpanel = LoadPanel (0, "OppsiteLoad.uir", OPPSITEPNL)) < 0)
+		return -1;
+	DisplayPanel (oppstpanel);
+	RunUserInterface ();
+	DiscardPanel (oppstpanel);
+	return 0;
+}
+*/
+
+//初始化测试参数
+void InitOppsiteTestPara(void)
+{
+		double dTemp;
+		int tempInt;
+		int iAngleChannel,iTorqueChannel;
+		int i;
+		
+		GetPanelHandleFromTabPage (OppsitePanelHandle, OPPSITEPNL_OPP_TAB,0,&tabpanel1);
+		
+		GetCtrlVal(tabpanel1,SET_TAB_ANGLE_CH_RING,&iAngleChannel); 
+		GetCtrlVal(tabpanel1,SET_TAB_TORQUE_CH_RING,&iTorqueChannel);
+		
+		for(i= 1; i<5 ; i++)
+		{
+			if(i == iAngleChannel)
+			{
+				pExMem->testPara[i].iStatus = 1; 
+			}
+			else if(i == iTorqueChannel)
+			{
+				pExMem->testPara[i].iStatus = 2; 
+			}
+			else 
+				pExMem->testPara[i].iStatus = 0;      
+		}
+		
+		GetCtrlVal(tabpanel1,SET_TAB_ANGLE_GIVEN_AMP,&dTemp); 
+		pExMem->testPara[iAngleChannel].dAmp = dTemp; 
+		GetCtrlVal(tabpanel1,SET_TAB_ANGLE_GIVEN_FREQ,&dTemp); 
+		pExMem->testPara[iAngleChannel].dFreq = dTemp; 
+		GetCtrlVal(tabpanel1,SET_TAB_ANGLE_GIVEN_WAVE,&tempInt); 
+		pExMem->testPara[iAngleChannel].iWave = tempInt; 
+		GetCtrlVal(tabpanel1,SET_TAB_TEST_TYPE_RING,&tempInt); 
+		pExMem->testPara[iAngleChannel].iTestType= tempInt;    
+		
+		
+		GetCtrlVal(tabpanel1,SET_TAB_TORQUE_GIVEN_AMP,&dTemp); 
+		pExMem->testPara[iTorqueChannel].dAmp = dTemp; 
+		GetCtrlVal(tabpanel1,SET_TAB_TORQUE_GIVEN_FREQ,&dTemp); 
+		pExMem->testPara[iTorqueChannel].dFreq = dTemp; 
+		GetCtrlVal(tabpanel1,SET_TAB_TORQUE_GIVEN_WAVE,&tempInt); 
+		pExMem->testPara[iTorqueChannel].iWave = tempInt; 
+		GetCtrlVal(tabpanel1,SET_TAB_TEST_TYPE_RING,&tempInt); 
+		pExMem->testPara[iTorqueChannel].iTestType= tempInt;  
+}
+
+//对顶加载面板初始化
+int OppsitePanelInit(void)
+{
+	if ((OppsitePanelHandle = LoadPanel (0, "OppsiteLoad.uir", OPPSITEPNL)) < 0)
+	  return -1;
+	//对顶加载初始化
+	InitOppsiteCtrlPara();	  //初始化控制参数
+	InitOppsiteDisIndex();    //初始化显示索引
+	DisplayPanel (OppsitePanelHandle);
+	RunUserInterface ();
+	DiscardPanel (OppsitePanelHandle);
+	return 1;
+}
+
+void OppositeSetScreenCycNum(void)
+{
+	double dfreq;	   //预设频率
+	double dring_val;  //采样周期
+	long N;   //每屏显示点数
+	int i,ringindex;
+	
+	for(i=1;i<5;i++)
+	{
+		if(pExMem->testPara[i].iStatus == 1)  //如果是位置通道
+		{
+			N = (long)(2000 / (pExMem->testPara[i].dFreq) * CYCLE_NUM_PER_SCREEN);  //屏幕显示点数计算公式
+			if(N >= 3 && N <= 10000)
+			{
+				SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_1,ATTR_POINTS_PER_SCREEN,N);//只设置角度相关chart
+				SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_2,ATTR_POINTS_PER_SCREEN,N);
+			}
+			
+			for(ringindex = 0;ringindex < 11;ringindex++)  //检测幅值所处范围并设置y坐标
+			{
+				GetValueFromIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_1,ringindex,&dring_val);
+				if(pExMem->testPara[i].dAmp < dring_val)
+				{
+					SetCtrlIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_1,ringindex);
+					SetCtrlIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_2,ringindex);
+					SetAxisRange(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_1,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dring_val,dring_val);
+					SetAxisRange(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_2,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dring_val,dring_val);
+					break;
+				}
+			}
+		}
+		else if(pExMem->testPara[i].iStatus == 2)  //如果是力矩通道
+		{
+			N = (long)(2000 / (pExMem->testPara[i].dFreq) * CYCLE_NUM_PER_SCREEN);  //屏幕显示点数计算公式
+			if(N >= 3 && N <= 10000)
+			{
+				SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_3,ATTR_POINTS_PER_SCREEN,N);//只设置角度相关chart
+				SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_4,ATTR_POINTS_PER_SCREEN,N);
+			}
+			
+			for(ringindex = 0;ringindex < 11;ringindex++)  //检测幅值所处范围并设置y坐标
+			{
+				GetValueFromIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_3,ringindex,&dring_val);
+				if(pExMem->testPara[i].dAmp < dring_val)
+				{
+					SetCtrlIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_3,ringindex);
+					SetCtrlIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_4,ringindex);
+					SetAxisRange(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_3,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dring_val,dring_val);
+					SetAxisRange(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_4,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dring_val,dring_val);
+					break;
+				}
+			}
+		}
+		else
+		{}
+		
+		
+	}
+	
+	
+}
+
+
+//初始化显示索引
+void InitOppsiteDisIndex(void)
+{
+	char tempLabel[128];
+	
+	GetPanelHandleFromTabPage (OppsitePanelHandle, OPPSITEPNL_OPP_TAB,0,&tabpanel1);
+	
+	GetCtrlVal(tabpanel1,SET_TAB_ANGLE_CH_RING,&chart1_ch);
+	strcpy(tempLabel,""); 
+	strcat(tempLabel,channelLabel[chart1_ch]);
+	SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_TEXTMSG_25,tempLabel);
+	//GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART1_CH_RING,&chart1_ch);
+	/*
+	//将chart1的label标签显示为与ring内容相一致
+	//GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART1_CH_RING,&chart1_ch); 
+	GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART1_CONTENT_RING,&chart1_content);
+	strcpy(tempLabel,""); 
+	strcat(tempLabel,contentLabel[chart1_content]);
+	SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_1,ATTR_LABEL_TEXT,tempLabel);
+	SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_1,ATTR_LABEL_JUSTIFY,VAL_LEFT_JUSTIFIED);
+	*/
+	
+	//将chart2的label标签显示为与ring内容相一致
+	GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART2_CH_RING,&chart2_ch);
+	GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART2_CONTENT_RING,&chart2_content);
+	strcpy(tempLabel,""); 
+	strcat(tempLabel,contentLabel[chart2_content]);
+	SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_2,ATTR_LABEL_TEXT,tempLabel);
+	//SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_2,ATTR_LABEL_JUSTIFY,VAL_LEFT_JUSTIFIED);
+	
+	
+	GetCtrlVal(tabpanel1,SET_TAB_TORQUE_CH_RING,&chart3_ch);
+	strcpy(tempLabel,""); 
+	strcat(tempLabel,channelLabel[chart3_ch]);
+	SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_TEXTMSG_24,tempLabel);
+	//GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART3_CH_RING,&chart3_ch);
+	/*
+	//将chart3的label标签显示为与ring内容相一致
+	GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART3_CONTENT_RING,&chart3_content);
+	strcpy(tempLabel,""); 
+	strcat(tempLabel,contentLabel[chart3_content]);
+	SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_3,ATTR_LABEL_TEXT,tempLabel);
+	SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_3,ATTR_LABEL_JUSTIFY,VAL_LEFT_JUSTIFIED);
+	*/
+	
+	//将chart4的label标签显示为与ring内容相一致
+	GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART4_CH_RING,&chart4_ch);
+	GetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART4_CONTENT_RING,&chart4_content);
+	strcpy(tempLabel,""); 
+	strcat(tempLabel,contentLabel[chart4_content==5?chart4_content+1:chart4_content]);
+	SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_4,ATTR_LABEL_TEXT,tempLabel);
+	//SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_4,ATTR_LABEL_JUSTIFY,VAL_LEFT_JUSTIFIED); 
+}
+
+
+//初始化控制参数控件的值   
+void InitOppsiteCtrlSet(void)
+{
+	
+	GetPanelHandleFromTabPage (OppsitePanelHandle, OPPSITEPNL_OPP_TAB,1,&tabpanel1);
+			
+	//通道1的控制参数
+	GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,0,&tabpanel2);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAP,pExMem->ctrlPara[1].Kap);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAI,pExMem->ctrlPara[1].Kai);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAD,pExMem->ctrlPara[1].Kad);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FA1,pExMem->ctrlPara[1].Fa1);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FA2,pExMem->ctrlPara[1].Fa2);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FAK,pExMem->ctrlPara[1].Fak);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTP,pExMem->ctrlPara[1].Ktp);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTI,pExMem->ctrlPara[1].Kti);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTD,pExMem->ctrlPara[1].Ktd);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FT1,pExMem->ctrlPara[1].Ft1);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FT2,pExMem->ctrlPara[1].Ft2);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FTK,pExMem->ctrlPara[1].Ftk);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KEP,pExMem->ctrlPara[1].Kep);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KED,pExMem->ctrlPara[1].Ked);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_TED,pExMem->ctrlPara[1].Ted);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_T1,pExMem->ctrlPara[1].T1);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_T2,pExMem->ctrlPara[1].T2);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X1,pExMem->ctrlPara[1].X1);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X2,pExMem->ctrlPara[1].X2);
+	SetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X3,pExMem->ctrlPara[1].X3);
+
+	//通道2的控制参数
+	GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,1,&tabpanel2);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAP,pExMem->ctrlPara[2].Kap);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAI,pExMem->ctrlPara[2].Kai);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAD,pExMem->ctrlPara[2].Kad);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FA1,pExMem->ctrlPara[2].Fa1);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FA2,pExMem->ctrlPara[2].Fa2);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FAK,pExMem->ctrlPara[2].Fak);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTP,pExMem->ctrlPara[2].Ktp);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTI,pExMem->ctrlPara[2].Kti);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTD,pExMem->ctrlPara[2].Ktd);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FT1,pExMem->ctrlPara[2].Ft1);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FT2,pExMem->ctrlPara[2].Ft2);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FTK,pExMem->ctrlPara[2].Ftk);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KEP,pExMem->ctrlPara[2].Kep);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KED,pExMem->ctrlPara[2].Ked);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_TED,pExMem->ctrlPara[2].Ted);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_T1,pExMem->ctrlPara[2].T1);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_T2,pExMem->ctrlPara[2].T2);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X1,pExMem->ctrlPara[2].X1);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X2,pExMem->ctrlPara[2].X2);
+	SetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X3,pExMem->ctrlPara[2].X3);
+
+	//通道3的控制参数
+	GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,2,&tabpanel2);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAP,pExMem->ctrlPara[3].Kap);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAI,pExMem->ctrlPara[3].Kai);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAD,pExMem->ctrlPara[3].Kad);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FA1,pExMem->ctrlPara[3].Fa1);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FA2,pExMem->ctrlPara[3].Fa2);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FAK,pExMem->ctrlPara[3].Fak);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTP,pExMem->ctrlPara[3].Ktp);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTI,pExMem->ctrlPara[3].Kti);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTD,pExMem->ctrlPara[3].Ktd);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FT1,pExMem->ctrlPara[3].Ft1);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FT2,pExMem->ctrlPara[3].Ft2);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FTK,pExMem->ctrlPara[3].Ftk);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KEP,pExMem->ctrlPara[3].Kep);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KED,pExMem->ctrlPara[3].Ked);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_TED,pExMem->ctrlPara[3].Ted);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_T1,pExMem->ctrlPara[3].T1);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_T2,pExMem->ctrlPara[3].T2);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X1,pExMem->ctrlPara[3].X1);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X2,pExMem->ctrlPara[3].X2);
+	SetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X3,pExMem->ctrlPara[3].X3);
+
+	//通道4的控制参数
+	GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,3,&tabpanel2);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAP,pExMem->ctrlPara[4].Kap);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAI,pExMem->ctrlPara[4].Kai);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAD,pExMem->ctrlPara[4].Kad);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FA1,pExMem->ctrlPara[4].Fa1);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FA2,pExMem->ctrlPara[4].Fa2);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FAK,pExMem->ctrlPara[4].Fak);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTP,pExMem->ctrlPara[4].Ktp);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTI,pExMem->ctrlPara[4].Kti);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTD,pExMem->ctrlPara[4].Ktd);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FT1,pExMem->ctrlPara[4].Ft1);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FT2,pExMem->ctrlPara[4].Ft2);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FTK,pExMem->ctrlPara[4].Ftk);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KEP,pExMem->ctrlPara[4].Kep);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KED,pExMem->ctrlPara[4].Ked);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_TED,pExMem->ctrlPara[4].Ted);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_T1,pExMem->ctrlPara[4].T1);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_T2,pExMem->ctrlPara[4].T2);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X1,pExMem->ctrlPara[4].X1);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X2,pExMem->ctrlPara[4].X2);
+	SetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X3,pExMem->ctrlPara[4].X3);
+}
+
+//初始化控制参数
+void InitOppsiteCtrlPara(void)
+{
+	double dTemp;
+	//获取ini文件句柄
+	inihandle = Ini_New(0);
+	//读取ini文件
+	//GetWindowsDirs (windowsDirectory, systemDirectory);
+	//strcpy( pathname ,windowsDirectory);  
+	
+	GetDir(currentDir);
+	strcpy(pathname,currentDir);
+	strcat(pathname,"\\OppsitePara.ini");
+	
+	inierr = Ini_ReadFromFile(inihandle, pathname); 
+	if( inierr < 0)
+	{
+		//sprintf(msgBuff,"打开参数文件错误！err = %d",inierr);
+		//MessagePopup ("Err",msgBuff);  
+		//打开文件失败
+	}
+	else
+	{
+		//通道1角度控制参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Kap", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Kap = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Kap = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Kai", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Kai = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Kai = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Kad", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Kad = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Kad = 0.0;
+		}
+		//角度控制模糊参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Fa1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Fa1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Fa1 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Fa2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Fa2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Fa2 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Fak", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Fak = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Fak = 0.0;
+		}
+		//通道1力矩控制PID参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Ktp", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Ktp = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Ktp = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Kti", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Kti = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Kti = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Ktd", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Ktd = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Ktd = 0.0;
+		}
+		//通道1力矩模糊参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Ft1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Ft1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Ft1 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Ft2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Ft2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Ft2 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Ftk", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Ftk = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Ftk = 0.0;
+		}
+		//通道1对顶参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Kep", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Kep = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Kep = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Ked", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Ked = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Ked = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_Ted", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].Ted = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].Ted = 0.0;
+		}
+		//通道1扩展参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_T1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].T1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].T1 = 999.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_T2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].T2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].T2 = 9999.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_X1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].X1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].X1 = 0.0;
+		}
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_X2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].X2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].X2 = 0.0;
+		}
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH1_X3", &dTemp)>0)
+		{
+			pExMem->ctrlPara[1].X3 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[1].X3 = 0.0;
+		}
+		
+		
+		//通道2 角度PID参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Kap", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Kap = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Kap = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Kai", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Kai = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Kai = 0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Kad", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Kad = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Kad = 0.0;
+		}
+		//通道2角度模糊参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Fa1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Fa1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Fa1 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Fa2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Fa2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Fa2 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Fak", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Fak = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Fak = 0.0;
+		}
+		//通道2力矩控制PID参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Ktp", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Ktp = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Ktp = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Kti", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Kti = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Kti = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Ktd", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Ktd = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Ktd = 0.0;
+		}
+		//通道2力矩模糊参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Ft1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Ft1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Ft1 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Ft2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Ft2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Ft2 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Ftk", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Ftk = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Ftk = 0.0;
+		}
+		//通道2对顶参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Kep", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Kep = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Kep = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Ked", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Ked = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Ked = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_Ted", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].Ted = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].Ted = 0.0;
+		}
+		//通道2扩展参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_T1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].T1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].T1 = 999.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_T2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].T2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].T2 = 9999.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_X1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].X1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].X1 = 0.0;
+		}
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_X2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].X2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].X2 = 0.0;
+		}
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH2_X3", &dTemp)>0)
+		{
+			pExMem->ctrlPara[2].X3 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[2].X3 = 0.0;
+		}
+		
+		//通道3
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Kap", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Kap = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Kap = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Kai", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Kai = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Kai = 0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Kad", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Kad = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Kad = 0.0;
+		}
+		//通道3角度模糊参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Fa1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Fa1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Fa1 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Fa2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Fa2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Fa2 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Fak", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Fak = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Fak = 0.0;
+		}
+		//通道3力矩控制PID参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Ktp", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Ktp = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Ktp = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Kti", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Kti = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Kti = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Ktd", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Ktd = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Ktd = 0.0;
+		}
+		//通道3力矩模糊参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Ft1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Ft1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Ft1 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Ft2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Ft2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Ft2 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Ftk", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Ftk = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Ftk = 0.0;
+		}
+		//通道3对顶参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Kep", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Kep = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Kep = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Ked", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Ked = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Ked = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_Ted", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].Ted = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].Ted = 0.0;
+		}
+		//通道1扩展参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_T1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].T1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].T1 = 999.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_T2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].T2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].T2 = 9999.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_X1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].X1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].X1 = 0.0;
+		}
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_X2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].X2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].X2 = 0.0;
+		}
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH3_X3", &dTemp)>0)
+		{
+			pExMem->ctrlPara[3].X3 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[3].X3 = 0.0;
+		}
+		
+		//通道4 角度控制PID参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Kap", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Kap = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Kap = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Kai", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Kai = 0;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Kai = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Kad", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Kad = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Kad = 0.0;
+		}
+		//通道4角度控制模糊参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Fa1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Fa1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Fa1 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Fa2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Fa2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Fa2 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Fak", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Fak = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Fak = 0.0;
+		}
+		//通道4力矩控制PID参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Ktp", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Ktp = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Ktp = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Kti", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Kti = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Kti = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Ktd", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Ktd = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Ktd = 0.0;
+		}
+		//通道4力矩模糊参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Ft1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Ft1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Ft1 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Ft2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Ft2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Ft2 = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Ftk", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Ftk = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Ftk = 0.0;
+		}
+		//通道4对顶参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Kep", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Kep = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Kep = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Ked", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Ked = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Ked = 0.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_Ted", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].Ted = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].Ted = 0.0;
+		}
+		//通道4扩展参数
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_T1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].T1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].T1 = 999.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_T2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].T2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].T2 = 9999.0;
+		}
+	
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_X1", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].X1 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].X1 = 0.0;
+		}
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_X2", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].X2 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].X2 = 0.0;
+		}
+		if(Ini_GetDouble (inihandle, "CtrlPara","CH4_X3", &dTemp)>0)
+		{
+			pExMem->ctrlPara[4].X3 = dTemp;
+		}
+		else 
+		{
+			 pExMem->ctrlPara[4].X3 = 0.0;
+		}
+	}
+	
+	InitOppsiteCtrlSet();
+}
+
+//使能控制参数设置
+void LightOppositeParaSet(void)
+{
+	GetPanelHandleFromTabPage (OppsitePanelHandle, OPPSITEPNL_OPP_TAB,1,&tabpanel1);
+			
+
+	GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,0,&tabpanel2);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAI,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAD,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FA1,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FA2,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FAK,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTI,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTD,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FT1,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FT2,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FTK,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KEP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KED,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_TED,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_T1, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_T2, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X1, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X2, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X3, ATTR_DIMMED,0);
+	
+	GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,1,&tabpanel2);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAI,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAD,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FA1,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FA2,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FAK,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTI,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTD,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FT1,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FT2,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FTK,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KEP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KED,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_TED,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_T1, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_T2, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X1, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X2, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X3, ATTR_DIMMED,0);
+	
+	GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,2,&tabpanel2);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAI,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAD,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FA1,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FA2,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FAK,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTI,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTD,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FT1,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FT2,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FTK,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KEP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KED,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_TED,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_T1, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_T2, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X1, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X2, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X3, ATTR_DIMMED,0);
+	
+	GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,3,&tabpanel2);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAI,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAD,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FA1,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FA2,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FAK,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTI,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTD,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FT1,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FT2,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FTK,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KEP,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KED,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_TED,ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_T1, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_T2, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X1, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X2, ATTR_DIMMED,0);
+	SetCtrlAttribute(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X3, ATTR_DIMMED,0);
+
+}
+
+
+/////////////////////////以下是回调函数/////////////////////
+
+///////**********面板回调函数************////////
+int CVICALLBACK OppsitePanelCallback (int panel, int event, void *callbackData,
+		int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_GOT_FOCUS:
+
+			break;
+		case EVENT_LOST_FOCUS:
+
+			break;
+		case EVENT_CLOSE:
+
+			break;
+	}
+	return 0;
+}
+
+///////**********Y坐标范围回调函数************////////
+int CVICALLBACK YRangeChange (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		double dTemp;
+		
+		case EVENT_COMMIT:
+			
+			switch(control)
+			{
+				case OPPSITEPNL_YRANGE_RING_1:
+					GetCtrlVal(panel,control,&dTemp);
+					SetAxisRange(panel,OPPSITEPNL_STRIPCHART_1,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dTemp,dTemp);
+					break;
+				case OPPSITEPNL_YRANGE_RING_2:
+					GetCtrlVal(panel,control,&dTemp);
+					SetAxisRange(panel,OPPSITEPNL_STRIPCHART_2,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dTemp,dTemp);
+					break;
+				case OPPSITEPNL_YRANGE_RING_3:
+					GetCtrlVal(panel,control,&dTemp);
+					SetAxisRange(panel,OPPSITEPNL_STRIPCHART_3,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dTemp,dTemp);
+					break;
+				case OPPSITEPNL_YRANGE_RING_4:
+					GetCtrlVal(panel,control,&dTemp);
+					SetAxisRange(panel,OPPSITEPNL_STRIPCHART_4,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dTemp,dTemp);
+					break;
+			} 
+			
+			break;
+	}
+	return 0;
+}
+
+
+///////**********保存数据回调函数************////////
+int CVICALLBACK OppsiteSaveCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			strcpy(saveDir,"D:\\测试数据" );
+			err = MakeDir (saveDir);
+			strcat(saveDir,"\\" );
+			strcat(saveDir, DateStr());
+			err = MakeDir (saveDir);
+			if(FileSelectPopup (saveDir, "*.dat", "*.dat", "数据保存", VAL_SAVE_BUTTON, 0, 1, 1, 0,savepath ) != 0)
+			{
+				savefilehandle = OpenFile (savepath , VAL_WRITE_ONLY, VAL_TRUNCATE, VAL_BINARY);
+				WriteFile (savefilehandle, (char*)saveBuf, saveIndex * dataStructSize ); 
+				CloseFile (savefilehandle);
+			}
+			break;
+	}
+	return 0;
+}
+
+///////**********记录数据回调函数************////////
+int CVICALLBACK OppsiteRecordCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			if(recording == 0)
+			{
+				recording = 1;
+				saveIndex = 0;
+				SetCtrlAttribute(panel,control,ATTR_LABEL_TEXT,"停止记录");
+			}
+			else
+			{
+				recording = 0;
+				SetCtrlAttribute(panel,control,ATTR_LABEL_TEXT,"开始记录");  
+			}
+			break;
+	}
+	return 0;
+}
+
+///////**********退出回调函数************////////
+int CVICALLBACK OppsiteExitCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			if(ConfirmPopup ("确定退出", "确定退出？"))
+			{
+				pExMem->requestType = EXIT_PROCESS; 
+				pExMem->request  = IS_REQUEST;
+				QuitUserInterface(0);  
+			}
+			break;
+	}
+	return 0;
+}
+
+///////**********开始回调函数************////////
+int CVICALLBACK OppsiteStartCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			if(ConfirmPopup ("确定启动", "确定启动？"))
+			{
+				InitOppsiteTestPara();		//初始化测试参数
+				OppositeSetScreenCycNum();	//设置屏幕显示点数
+				pExMem->requestType = START_PROCESS; 
+				pExMem->request  = IS_REQUEST;
+			}
+			break;
+	}
+	return 0;
+}
+
+///////**********复位回调函数************////////
+int CVICALLBACK OppsiteResetCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			InitOppsiteTestPara();   
+			pExMem->requestType = RESET_PROCESS; 
+			pExMem->request  = IS_REQUEST;
+			break;
+	}
+	return 0;
+}
+
+int CVICALLBACK OppDisChangeCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			InitOppsiteDisIndex();
+			break;
+	}
+	return 0;
+}
+
+///////**********定时器回调函数************////////
+int CVICALLBACK OppsiteTimerCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	long loop;
+    long i;
+	double * chart1 = NULL;
+	double * chart2 = NULL;
+	double * chart3 = NULL;
+	double * chart4 = NULL;
+	
+	switch (event)
+	{
+		case EVENT_TIMER_TICK:
+			loop=pExMem->l_End - pExMem->l_First;
+			if(loop < 0) 
+			{				
+				long loop1,loop2,loop3;
+				loop1 = DATA_LENGTH - pExMem->l_First;
+				loop2 = pExMem->l_End;
+				loop3 = loop1 + loop2;
+				chart1 = (double *)malloc(sizeof(double)*loop3 * 2);
+				chart2 = (double *)malloc(sizeof(double)*loop3);
+				chart3 = (double *)malloc(sizeof(double)*loop3 * 2);
+				chart4 = (double *)malloc(sizeof(double)*loop3);
+				
+				for(i = 0; i < loop1 ; ++i)
+				{
+					chart1[2*i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart1_ch];
+					chart1[2*i+1] = (pDataMem + pExMem->l_First + i)->AngleSample[chart1_ch];
+				
+					
+					chart3[2*i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart3_ch];
+					chart3[2*i+1] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart3_ch];
+				
+					/*
+					switch(chart1_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->AngleSample[chart1_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart1_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart1_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart1_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->ServoOut[chart1_ch];
+							break;
+						default:
+								chart1[i] = 0.0;
+							break;
+						//chart2[i] = (pDataMem + pExMem->l_First + i)->AngleSample;
+						//chart3[i] = AngleCommand[i] - AngleSample[i];
+					}
+					*/
+					
+					switch(chart2_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->AngleSample[chart2_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart2_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart2_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart2_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->ServoOut[chart2_ch];
+							break;
+						case ERROR_INDEX:
+								chart2[i] = chart1[2*i]- chart1[2*i+1];
+							break;
+						default:
+								chart2[i] = 0.0;
+							break;
+					}
+					
+					/*
+					switch(chart3_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->AngleSample[chart3_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart3_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart3_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart3_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->ServoOut[chart3_ch];
+							break;
+						default:
+								chart3[i] = 0.0;
+							break;
+					}
+					*/
+					
+					switch(chart4_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->AngleSample[chart4_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart4_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart4_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart4_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->ServoOut[chart4_ch];
+							break;
+						case ERROR_INDEX:
+								chart4[i] = chart3[2*i]- chart3[2*i+1];
+							break;
+						default:
+								chart4[i] = 0.0;
+							break;
+					}
+				}
+				
+				if(recording == 1)
+				{
+					memcpy((saveBuf + saveIndex ),pDataMem + pExMem->l_First,loop1 * dataStructSize);
+					saveIndex += loop1;
+				}
+				
+				for(i = 0; i < loop2 ; ++i)
+				{
+					//chart1[i + loop1] = (pDataMem + i)->AngleCommand;
+					//chart2[i + loop1] = (pDataMem + i)->AngleSample;
+					//chart3[i + loop1] = AngleCommand[i + loop1] - AngleSample[i + loop1];
+					
+					chart1[2*(i+loop1)] = (pDataMem + i )->AngleGiven[chart1_ch];
+					chart1[2*(i+loop1)+1] = (pDataMem + i )->AngleSample[chart1_ch];
+					//chart1_1[i+loop1] = (pDataMem + i )->AngleSample[chart1_ch];
+					chart3[2*(i+loop1)] = (pDataMem + i)->TorqueGiven[chart3_ch];
+					chart3[2*(i+loop1)+1] = (pDataMem + i)->TorqueSample[chart3_ch];
+					//chart3_1[i+loop1] = (pDataMem + i )->TorqueSample[chart3_ch];
+					
+					/*
+					switch(chart1_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart1[i+loop1] = (pDataMem + i )->AngleSample[chart1_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart1[i+loop1] = (pDataMem + i )->AngleGiven[chart1_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart1[i+loop1] = (pDataMem + i )->TorqueSample[chart1_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart1[i+loop1] = (pDataMem + i)->TorqueGiven[chart1_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart1[i+loop1] = (pDataMem + i)->ServoOut[chart1_ch];
+							break;
+						default:
+								chart1[i+loop1] = 0.0;
+							break;
+						//chart2[i] = (pDataMem + pExMem->l_First + i)->AngleSample;
+						//chart3[i] = AngleCommand[i] - AngleSample[i];
+					}
+					*/
+					
+					switch(chart2_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart2[i+loop1] = (pDataMem  + i)->AngleSample[chart2_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart2[i+loop1] = (pDataMem  + i)->AngleGiven[chart2_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart2[i+loop1] = (pDataMem  + i)->TorqueSample[chart2_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart2[i+loop1] = (pDataMem  + i)->TorqueGiven[chart2_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart2[i+loop1] = (pDataMem  + i)->ServoOut[chart2_ch];
+							break;
+						case ERROR_INDEX:
+								chart2[i+loop1] = chart1[2*i]- chart1[2*i+1];
+							break;
+						default:
+								chart2[i+loop1] = 0.0;
+							break;
+					}
+					
+					/*
+					switch(chart3_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart3[i+loop1] = (pDataMem + i)->AngleSample[chart3_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart3[i+loop1] = (pDataMem + i)->AngleGiven[chart3_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart3[i+loop1] = (pDataMem + i)->TorqueSample[chart3_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart3[i+loop1] = (pDataMem + i)->TorqueGiven[chart3_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart3[i+loop1] = (pDataMem + i)->ServoOut[chart3_ch];
+							break;
+						default:
+								chart3[i+loop1] = 0.0;
+							break;
+					}
+					*/
+					
+					switch(chart4_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart4[i+loop1] = (pDataMem + i)->AngleSample[chart4_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart4[i+loop1] = (pDataMem + i)->AngleGiven[chart4_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart4[i+loop1] = (pDataMem + i)->TorqueSample[chart4_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart4[i+loop1] = (pDataMem + i)->TorqueGiven[chart4_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart4[i+loop1] = (pDataMem + i)->ServoOut[chart4_ch];
+							break;
+						case ERROR_INDEX:
+								chart4[i+loop1] = chart3[2*i]- chart3[2*i+1];
+							break;
+						default:
+								chart4[i+loop1] = 0.0;
+							break;
+					}
+				}
+				if(recording == 1)
+				{
+					memcpy((saveBuf + saveIndex ),pDataMem,loop2 * dataStructSize);
+					saveIndex += loop2;
+				}
+				
+				pExMem->l_First = (pExMem->l_First + loop3)%DATA_LENGTH;
+				
+				PlotStripChart(panel,OPPSITEPNL_STRIPCHART_1,chart1,2*loop3,0,0,VAL_DOUBLE);
+				PlotStripChart(panel,OPPSITEPNL_STRIPCHART_2,chart2,loop3,0,0,VAL_DOUBLE);  
+				PlotStripChart(panel,OPPSITEPNL_STRIPCHART_3,chart3,2*loop3,0,0,VAL_DOUBLE);
+				PlotStripChart(panel,OPPSITEPNL_STRIPCHART_4,chart4,loop3,0,0,VAL_DOUBLE);
+			}
+			else  if(loop > 0 )
+			{
+				chart1 = (double *)malloc(sizeof(double)*loop * 2);
+				chart2 = (double *)malloc(sizeof(double)*loop);
+				chart3 = (double *)malloc(sizeof(double)*loop * 2);
+				chart4 = (double *)malloc(sizeof(double)*loop);
+				
+				for(i = 0; i < loop ; ++i)
+				{
+					chart1[2*i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart1_ch];
+					chart1[2*i+1] = (pDataMem + pExMem->l_First + i)->AngleSample[chart1_ch];
+					
+					chart3[2*i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart3_ch];
+					chart3[2*i+1] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart3_ch];
+					/*
+					switch(chart1_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->AngleSample[chart1_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart1_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart1_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart1_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart1[i] = (pDataMem + pExMem->l_First + i)->ServoOut[chart1_ch];
+							break;
+						default:
+								chart1[i] = 0.0;
+							break;
+					}
+					*/
+					
+					switch(chart2_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->AngleSample[chart2_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart2_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart2_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart2_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart2[i] = (pDataMem + pExMem->l_First + i)->ServoOut[chart2_ch];
+							break;
+						case ERROR_INDEX:
+								chart2[i] = chart1[2*i]- chart1[2*i+1];
+							break;
+						default:
+								chart2[i] = 0.0;
+							break;
+					}
+					
+					/*
+					switch(chart3_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->AngleSample[chart3_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart3_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart3_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart3_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart3[i] = (pDataMem + pExMem->l_First + i)->ServoOut[chart3_ch];
+							break;
+						default:
+								chart3[i] = 0.0;
+							break;
+					}
+					*/
+					
+					
+					switch(chart4_content)
+					{
+						case ANGLE_SAMPLE_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->AngleSample[chart4_ch];
+							break;
+						case ANGLE_GIVEN_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->AngleGiven[chart4_ch];
+							break;
+						case TORQUE_SAMPLE_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->TorqueSample[chart4_ch];
+							break;
+						case TORQUE_GIVEN_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->TorqueGiven[chart4_ch];
+							break;
+						case SERVO_OUT_INDEX:
+								chart4[i] = (pDataMem + pExMem->l_First + i)->ServoOut[chart4_ch];
+							break;
+						case ERROR_INDEX:
+								chart4[i] = chart3[2*i]- chart3[2*i+1];
+							break;
+						default:
+								chart4[i] = 0.0;
+							break;		
+					} 
+				}
+				if(recording == 1)
+				{
+					memcpy((saveBuf + saveIndex ),pDataMem + pExMem->l_First,loop * dataStructSize);
+					saveIndex += loop;
+				}
+				
+				pExMem->l_First = (pExMem->l_First + loop) % DATA_LENGTH;
+				
+				PlotStripChart(panel,OPPSITEPNL_STRIPCHART_1,chart1,2*loop,0,0,VAL_DOUBLE);
+				PlotStripChart(panel,OPPSITEPNL_STRIPCHART_2,chart2,loop,0,0,VAL_DOUBLE);  
+				PlotStripChart(panel,OPPSITEPNL_STRIPCHART_3,chart3,2*loop,0,0,VAL_DOUBLE);
+				PlotStripChart(panel,OPPSITEPNL_STRIPCHART_4,chart4,loop,0,0,VAL_DOUBLE);
+			}
+			else
+			{
+			}
+			
+			SetCtrlVal(panel, OPPSITEPNL_HY_PRESS,fOilPress);
+			SetCtrlVal(panel, OPPSITEPNL_HY_TEMPATURE,fOilTemp);
+			SetCtrlVal(panel, OPPSITEPNL_TEMPER_ALERT_LED,iTempWarn);
+			SetCtrlVal(panel, OPPSITEPNL_PRESS_ALERT_LED,iPressWarn);
+			
+			if(chart1 != NULL) free(chart1);
+			if(chart2 != NULL) free(chart2);  
+			if(chart3 != NULL) free(chart3);
+			if(chart4 != NULL) free(chart4);
+			
+			break;
+	}
+	return 0;
+}
+
+///////**********力矩通道回调函数************////////
+int CVICALLBACK TChannelChooseCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		int iTemp;
+		
+		case EVENT_COMMIT:
+			GetCtrlVal(panel,control,&iTemp);
+			SetCtrlVal(panel,SET_TAB_ANGLE_CH_RING,OppsiteChannel[iTemp]);
+			//SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART3_CH_RING,iTemp);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART4_CH_RING,iTemp);
+			//SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART1_CH_RING,OppsiteChannel[iTemp]);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART2_CH_RING,OppsiteChannel[iTemp]);
+			
+			InitOppsiteDisIndex();
+			
+			break;
+	}
+	return 0;
+}
+
+///////**********位置通道回调函数************////////
+int CVICALLBACK AChannelChooseCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		int iTemp;
+		
+		case EVENT_COMMIT:
+			GetCtrlVal(panel,control,&iTemp);
+			SetCtrlVal(panel,SET_TAB_TORQUE_CH_RING,OppsiteChannel[iTemp]);
+			//SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART1_CH_RING,iTemp);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART2_CH_RING,iTemp);
+			//SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART3_CH_RING,OppsiteChannel[iTemp]);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART4_CH_RING,OppsiteChannel[iTemp]);
+			
+			InitOppsiteDisIndex();
+			
+			break;
+	}
+	return 0;
+}
+
+///////**********测试类型回调函数************////////
+int CVICALLBACK TestTypeChangeCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		int iTemp;
+		
+		case EVENT_COMMIT:
+
+			GetCtrlVal(panel,control,&iTemp);
+			switch(iTemp)
+			{
+				case REMOVE_EXTRA_TORQUE:
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_WAVE,ATTR_DIMMED,0);
+					SetCtrlVal(panel,SET_TAB_TORQUE_GIVEN_WAVE,4);
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_AMP,ATTR_DIMMED,0); 
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_FREQ,ATTR_DIMMED,0); 
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_AMP,ATTR_LABEL_TEXT,"力矩指令幅值");
+					SetCtrlAttribute(panel,SET_TAB_TEXTMSG_13,ATTR_CTRL_VAL,"Nm");
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_WAVE,ATTR_DIMMED,0);
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_AMP,ATTR_DIMMED,0); 
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_FREQ,ATTR_DIMMED,0);
+					break;
+				case ANY_CHART_TRACE:
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_WAVE,ATTR_DIMMED,0);
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_AMP,ATTR_DIMMED,0); 
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_FREQ,ATTR_DIMMED,0);
+					SetCtrlVal(panel,SET_TAB_TORQUE_GIVEN_WAVE,1); 
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_AMP,ATTR_LABEL_TEXT,"力矩指令幅值");
+					SetCtrlAttribute(panel,SET_TAB_TEXTMSG_13,ATTR_CTRL_VAL,"Nm");
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_WAVE,ATTR_DIMMED,0);
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_AMP,ATTR_DIMMED,0); 
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_FREQ,ATTR_DIMMED,0);
+					break;
+				case PROPORTION_TRACE:
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_WAVE,ATTR_DIMMED,1);
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_AMP,ATTR_DIMMED,0); 
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_AMP,ATTR_LABEL_TEXT,"力矩加载梯度");
+					SetCtrlAttribute(panel,SET_TAB_TEXTMSG_13,ATTR_CTRL_VAL,"°/Nm"); 
+					SetCtrlVal(panel,SET_TAB_TORQUE_GIVEN_WAVE,3); 
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_FREQ,ATTR_DIMMED,1); 
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_WAVE,ATTR_DIMMED,0);
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_AMP,ATTR_DIMMED,0); 
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_FREQ,ATTR_DIMMED,0);
+					break;
+					case  4:
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_WAVE,ATTR_DIMMED,1);
+					SetCtrlVal(panel,SET_TAB_TORQUE_GIVEN_WAVE,4);
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_AMP,ATTR_DIMMED,1); 
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_FREQ,ATTR_DIMMED,1); 
+					SetCtrlAttribute(panel,SET_TAB_TORQUE_GIVEN_AMP,ATTR_LABEL_TEXT,"力矩指令幅值");
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_WAVE,ATTR_DIMMED,1);
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_AMP,ATTR_DIMMED,1); 
+					SetCtrlAttribute(panel,SET_TAB_ANGLE_GIVEN_FREQ,ATTR_DIMMED,1);   
+						break;
+					
+					
+			}
+			
+			break;
+	}
+	return 0;
+}
+
+///////**********设置参数回调函数************////////
+int CVICALLBACK OppsiteSetParaCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	double dTemp;
+	int selbutton;          
+	char keyinputbuffer[65];
+	
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			
+			if(keyerr)  //检查密码标志位
+			{
+				selbutton = GenericMessagePopup("Generic Message Popup","控制参数修改需要管理员权限，请输入密码：",
+												"确定","取消",0,keyinputbuffer,64,0,VAL_GENERIC_POPUP_INPUT_STRING,
+												VAL_GENERIC_POPUP_BTN1,VAL_GENERIC_POPUP_BTN2);
+				switch (selbutton)
+				{
+					case VAL_GENERIC_POPUP_BTN1:
+						keyerr = strcmp(keyinputbuffer,originalkey); //密码比较
+						if(!keyerr)									 //如果吻合
+						{
+							//确认
+							if(ConfirmPopup("Confirm Popup","密码正确！修改控制参数将影响系统控制性能，进行修改？"))
+							{
+								keyerr = 0;
+								LightOppositeParaSet();	//light the paraset
+							}
+							else
+							{
+								MessagePopup("Message Popup","您已经取消了控制参数的修改操作！");
+							}
+						}
+						else										 //如果不吻合
+						{
+							MessagePopup("Message Popup","输入密码错误！请核对密码后再进行操作！");
+							keyerr = 1;
+						}
+						break;
+					case VAL_GENERIC_POPUP_BTN2:
+						break;
+					default:
+						break;
+							
+				}
+				
+			}
+			else
+			{
+				LightOppositeParaSet();
+				GetPanelHandleFromTabPage (OppsitePanelHandle, OPPSITEPNL_OPP_TAB,1,&tabpanel1);
+			
+				//通道1的控制参数
+				GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,0,&tabpanel2);
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAP,&dTemp);
+				pExMem->ctrlPara[1].Kap = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAI,&dTemp);
+				pExMem->ctrlPara[1].Kai = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+				pExMem->ctrlPara[1].Kad = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FA1,&dTemp);
+				pExMem->ctrlPara[1].Fa1 = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FA2,&dTemp);
+				pExMem->ctrlPara[1].Fa2 = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FAK,&dTemp);
+				pExMem->ctrlPara[1].Fak = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTP,&dTemp);
+				pExMem->ctrlPara[1].Ktp = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTI,&dTemp);
+				pExMem->ctrlPara[1].Kti = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTD,&dTemp);
+				pExMem->ctrlPara[1].Ktd = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FT1,&dTemp);
+				pExMem->ctrlPara[1].Ft1 = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FT2,&dTemp);
+				pExMem->ctrlPara[1].Ft2 = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FTK,&dTemp);
+				pExMem->ctrlPara[1].Ftk = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KEP,&dTemp);
+				pExMem->ctrlPara[1].Kep = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KED,&dTemp);
+				pExMem->ctrlPara[1].Ked = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_TED,&dTemp);
+				pExMem->ctrlPara[1].Ted = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_T1,&dTemp);
+				pExMem->ctrlPara[1].T1 = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_T2,&dTemp);
+				pExMem->ctrlPara[1].T2 = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X1,&dTemp);
+				pExMem->ctrlPara[1].X1 = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X2,&dTemp);
+				pExMem->ctrlPara[1].X2 = dTemp;
+				GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X3,&dTemp);
+				pExMem->ctrlPara[1].X3 = dTemp;
+
+			
+				//通道2的控制参数
+				GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,1,&tabpanel2);
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAP,&dTemp);
+				pExMem->ctrlPara[2].Kap = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAI,&dTemp);
+				pExMem->ctrlPara[2].Kai = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+				pExMem->ctrlPara[2].Kad = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FA1,&dTemp);
+				pExMem->ctrlPara[2].Fa1 = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FA2,&dTemp);
+				pExMem->ctrlPara[2].Fa2 = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FAK,&dTemp);
+				pExMem->ctrlPara[2].Fak = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTP,&dTemp);
+				pExMem->ctrlPara[2].Ktp = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTI,&dTemp);
+				pExMem->ctrlPara[2].Kti = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTD,&dTemp);
+				pExMem->ctrlPara[2].Ktd = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FT1,&dTemp);
+				pExMem->ctrlPara[2].Ft1 = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FT2,&dTemp);
+				pExMem->ctrlPara[2].Ft2 = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FTK,&dTemp);
+				pExMem->ctrlPara[2].Ftk = dTemp;
+			
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KEP,&dTemp);
+				pExMem->ctrlPara[2].Kep = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KED,&dTemp);
+				pExMem->ctrlPara[2].Ked = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_TED,&dTemp);
+				pExMem->ctrlPara[2].Ted = dTemp;
+			
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_T1,&dTemp);
+				pExMem->ctrlPara[2].T1 = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_T2,&dTemp);
+				pExMem->ctrlPara[2].T2 = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X1,&dTemp);
+				pExMem->ctrlPara[2].X1 = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X2,&dTemp);
+				pExMem->ctrlPara[2].X2 = dTemp;
+				GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X3,&dTemp);
+				pExMem->ctrlPara[2].X3 = dTemp;
+				
+				//通道3的控制参数
+				GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,2,&tabpanel2);
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAP,&dTemp);
+				pExMem->ctrlPara[3].Kap = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAI,&dTemp);
+				pExMem->ctrlPara[3].Kai = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+				pExMem->ctrlPara[3].Kad = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FA1,&dTemp);
+				pExMem->ctrlPara[3].Fa1 = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FA2,&dTemp);
+				pExMem->ctrlPara[3].Fa2 = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FAK,&dTemp);
+				pExMem->ctrlPara[3].Fak = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTP,&dTemp);
+				pExMem->ctrlPara[3].Ktp = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTI,&dTemp);
+				pExMem->ctrlPara[3].Kti = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTD,&dTemp);
+				pExMem->ctrlPara[3].Ktd = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FT1,&dTemp);
+				pExMem->ctrlPara[3].Ft1 = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FT2,&dTemp);
+				pExMem->ctrlPara[3].Ft2 = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FTK,&dTemp);
+				pExMem->ctrlPara[3].Ftk = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KEP,&dTemp);
+				pExMem->ctrlPara[3].Kep = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KED,&dTemp);
+				pExMem->ctrlPara[3].Ked = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_TED,&dTemp);
+				pExMem->ctrlPara[3].Ted = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_T1,&dTemp);
+				pExMem->ctrlPara[3].T1 = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_T2,&dTemp);
+				pExMem->ctrlPara[3].T2 = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X1,&dTemp);
+				pExMem->ctrlPara[3].X1 = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X2,&dTemp);
+				pExMem->ctrlPara[3].X2 = dTemp;
+				GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X3,&dTemp);
+				pExMem->ctrlPara[3].X3 = dTemp;
+				
+				//通道4的控制参数
+				GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,3,&tabpanel2);
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAP,&dTemp);
+				pExMem->ctrlPara[4].Kap = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAI,&dTemp);
+				pExMem->ctrlPara[4].Kai = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+				pExMem->ctrlPara[4].Kad = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FA1,&dTemp);
+				pExMem->ctrlPara[4].Fa1 = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FA2,&dTemp);
+				pExMem->ctrlPara[4].Fa2 = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FAK,&dTemp);
+				pExMem->ctrlPara[4].Fak = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTP,&dTemp);
+				pExMem->ctrlPara[4].Ktp = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTI,&dTemp);
+				pExMem->ctrlPara[4].Kti = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTD,&dTemp);
+				pExMem->ctrlPara[4].Ktd = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FT1,&dTemp);
+				pExMem->ctrlPara[4].Ft1 = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FT2,&dTemp);
+				pExMem->ctrlPara[4].Ft2 = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FTK,&dTemp);
+				pExMem->ctrlPara[4].Ftk = dTemp;
+				
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KEP,&dTemp);
+				pExMem->ctrlPara[4].Kep = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KED,&dTemp);
+				pExMem->ctrlPara[4].Ked = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_TED,&dTemp);
+				pExMem->ctrlPara[4].Ted = dTemp;
+			
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_T1,&dTemp);
+				pExMem->ctrlPara[4].T1 = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_T2,&dTemp);
+				pExMem->ctrlPara[4].T2 = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X1,&dTemp);
+				pExMem->ctrlPara[4].X1 = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X2,&dTemp);
+				pExMem->ctrlPara[4].X2 = dTemp;
+				GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X3,&dTemp);
+				pExMem->ctrlPara[4].X3 = dTemp;
+			}
+			
+			break;
+	}
+	return 0;
+}
+
+///////**********保存参数回调函数************////////
+int CVICALLBACK OppsiteSaveParaCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	double dTemp;
+	
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			if(ConfirmPopup("Confirm Popup","保存此组参数？它将替换原内存中参数！"))
+			{
+			 GetPanelHandleFromTabPage (OppsitePanelHandle, OPPSITEPNL_OPP_TAB,1,&tabpanel1);
+			
+			//通道1的控制参数
+			GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,0,&tabpanel2);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Kap",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAI,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Kai",dTemp); 
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Kad",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FA1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Fa1",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FA2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Fa2",dTemp); 
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FAK,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Fak",dTemp); 
+			
+		
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Ktp",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTI,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Kti",dTemp); 
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KTD,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Ktd",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FT1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Ft1",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FT2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Ft2",dTemp); 
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_FTK,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Ftk",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KEP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Kep",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_KED,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Ked",dTemp); 
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_TED,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_Ted",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_T1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_T1",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_T2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_T2",dTemp); 
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_X1",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_X2",dTemp);
+			GetCtrlVal(tabpanel2,CH1_P_TAB_NUM_OPPSITE_X3,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH1_X3",dTemp); 
+		
+			
+			//通道2的控制参数
+			GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,1,&tabpanel2);
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Kap",dTemp); 
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAI,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Kai",dTemp);  
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Kad",dTemp);
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FA1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Fa1",dTemp);
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FA2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Fa2",dTemp); 
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FAK,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Fak",dTemp); 
+			
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Ktp",dTemp); 
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTI,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Kti",dTemp);  
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KTD,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Ktd",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FT1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Ft1",dTemp);
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FT2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Ft2",dTemp); 
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_FTK,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Ftk",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KEP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Kep",dTemp);
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_KED,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Ked",dTemp); 
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_TED,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_Ted",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_T1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_T1",dTemp);
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_T2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_T2",dTemp); 
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_X1",dTemp);
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_X2",dTemp);
+			GetCtrlVal(tabpanel2,CH2_P_TAB_NUM_OPPSITE_X3,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH2_X3",dTemp); 
+			
+			//通道3的控制参数
+			GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,2,&tabpanel2);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Kap",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAI,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Kai",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Kad",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FA1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Fa1",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FA2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Fa2",dTemp); 
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FAK,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Fak",dTemp); 
+			
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Ktp",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTI,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Kti",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KTD,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Ktd",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FT1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Ft1",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FT2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Ft2",dTemp); 
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_FTK,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Ftk",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KEP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Kep",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_KED,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Ked",dTemp); 
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_TED,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_Ted",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_T1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_T1",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_T2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_T2",dTemp); 
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_X1",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_X2",dTemp);
+			GetCtrlVal(tabpanel2,CH3_P_TAB_NUM_OPPSITE_X3,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH3_X3",dTemp); 
+			
+			//通道4的控制参数
+			GetPanelHandleFromTabPage(tabpanel1, PARA_TAB_CTRL_PARA_TAB,3,&tabpanel2);
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Kap",dTemp); 
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAI,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Kai",dTemp); 
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Kad",dTemp);
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FA1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Fa1",dTemp);
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FA2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Fa2",dTemp); 
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FAK,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Fak",dTemp); 
+			
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Ktp",dTemp); 
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KTI,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Kti",dTemp); 
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KAD,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Ktd",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FT1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Ft1",dTemp);
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FT2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Ft2",dTemp); 
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_FTK,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Ftk",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KEP,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Kep",dTemp);
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_KED,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Ked",dTemp); 
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_TED,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_Ted",dTemp);
+			
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_T1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_T1",dTemp);
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_T2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_T2",dTemp); 
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X1,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_X1",dTemp);
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X2,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_X2",dTemp);
+			GetCtrlVal(tabpanel2,CH4_P_TAB_NUM_OPPSITE_X3,&dTemp);
+			Ini_PutDouble(inihandle,"CtrlPara","CH4_X3",dTemp); 
+			
+			Ini_WriteToFile (inihandle, pathname);
+			}
+			else
+			{}
+			
+			break;
+	}
+	return 0;
+}
+
+
+///////**********油源控制回调函数************////////
+int CVICALLBACK OilControlCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			DisplayHPSPanel();
+			break;
+	}
+	return 0;
+}
+
+
+int CVICALLBACK OppDataReDisplay (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	
+	int selectstatus = 0;
+	static int confirm = 0;
+	
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			if(DftPathSign == 0)
+			{
+				selectstatus = FileSelectPopup("d:\\","*.exe",".exe;.dat;.dll","选择数据回放软件",
+												VAL_SELECT_BUTTON,0,1,0,0,pathname);
+				if(selectstatus > 0)
+				{
+					confirm = ConfirmPopup("Confirm Popup","将所选程序确定为默认的数据回放程序?");
+					
+					if(confirm)
+					{
+						DftPathSign = 1; 
+						strcpy(pathpass,"");
+						strcat(pathpass,pathname);
+						LaunchExecutable (pathpass);
+					} 
+					else
+						DftPathSign = 0;
+				}
+				
+			}
+			else
+			{
+				//strcpy(pathpass,"");
+				//strcat(pathpass,pathname);
+				LaunchExecutable (pathpass);	//加载外部数据回放软件
+			}
+			
+			break;
+	}
+	return 0;
+}
+
+int CVICALLBACK TOppDisChangeCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	long N;
+	int iTemp,ringindex;
+	double dring_val;
+	
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			
+			/*GetCtrlVal(panel,control,&iTemp);									//设置四个strips显示通道
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART3_CH_RING,iTemp);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART4_CH_RING,iTemp);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART1_CH_RING,OppsiteChannel[iTemp]);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART2_CH_RING,OppsiteChannel[iTemp]);
+			*/
+			InitOppsiteDisIndex();
+			
+			/*if(pExMem->testPara[chart3_ch].iStatus == 2)         //如果所选通道的状态为开
+			{
+				N = (long)(2000 / (pExMem->testPara[chart3_ch].dFreq) * CYCLE_NUM_PER_SCREEN);  //屏幕显示点数计算公式
+				
+				if(N >= 3 && N <= 10000)
+				{
+				
+					SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_3,ATTR_POINTS_PER_SCREEN,N);
+					SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_4,ATTR_POINTS_PER_SCREEN,N);
+				}
+				
+				for(ringindex = 0;ringindex < 11;ringindex++)  //检测幅值所处范围并设置y坐标
+				{
+					GetValueFromIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_3,ringindex,&dring_val);
+					if(pExMem->testPara[chart3_ch].dAmp < dring_val)
+					{
+						SetCtrlIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_3,ringindex);
+						SetCtrlIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_4,ringindex);
+						SetAxisRange(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_3,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dring_val,dring_val);
+						SetAxisRange(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_4,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dring_val,dring_val);
+						break;
+					}
+				}
+			}*/
+			
+			break;
+	}
+	return 0;
+}
+
+int CVICALLBACK AOppDisChangeCallback (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	long N;
+	int iTemp,ringindex;
+	double dring_val;
+	
+	
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			
+			/*GetCtrlVal(panel,control,&iTemp);								//设置四个strips显示通道相同
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART1_CH_RING,iTemp);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART2_CH_RING,iTemp);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART3_CH_RING,OppsiteChannel[iTemp]);
+			SetCtrlVal(OppsitePanelHandle,OPPSITEPNL_CHART4_CH_RING,OppsiteChannel[iTemp]);
+			*/
+			InitOppsiteDisIndex();
+			
+			/*if(pExMem->testPara[chart1_ch].iStatus == 1)         //如果所选通道的状态为开
+			{
+				N = (long)(2000 / (pExMem->testPara[chart1_ch].dFreq) * CYCLE_NUM_PER_SCREEN);  //屏幕显示点数计算公式
+				if(N >= 3 && N <= 10000)
+				{
+				
+					SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_1,ATTR_POINTS_PER_SCREEN,N);
+					SetCtrlAttribute(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_2,ATTR_POINTS_PER_SCREEN,N);
+				}
+				
+				for(ringindex = 0;ringindex < 11;ringindex++)  //检测幅值所处范围并设置y坐标
+				{
+					GetValueFromIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_1,ringindex,&dring_val);
+					if(pExMem->testPara[chart1_ch].dAmp < dring_val)
+					{
+						SetCtrlIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_1,ringindex);
+						SetCtrlIndex(OppsitePanelHandle,OPPSITEPNL_YRANGE_RING_2,ringindex);
+						SetAxisRange(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_1,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dring_val,dring_val);
+						SetAxisRange(OppsitePanelHandle,OPPSITEPNL_STRIPCHART_2,VAL_NO_CHANGE,0.0,1.0,VAL_MANUAL,-dring_val,dring_val);
+						break;
+					}
+				}
+			}*/
+			break;
+	}
+	return 0;
+}

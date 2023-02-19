@@ -1,0 +1,397 @@
+[Workspace Header]
+Version = 1500
+Pathname = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/负载模拟器.cws"
+CVI Dir = "/c/program files (x86)/national instruments/cvi2015"
+CVI Shared Dir = "/C/Program Files (x86)/National Instruments/Shared/CVI"
+CVI Pub Local Dir = "/C/ProgramData/National Instruments/CVI2015"
+CVI Pub Global Dir = "/C/ProgramData/National Instruments/CVI"
+IVI Standard Root Dir = "/C/Program Files (x86)/IVI Foundation/IVI"
+IVI Standard Root 64-bit Dir = "/C/Program Files/IVI Foundation/IVI"
+VXIplug&play Framework Dir = "/C/Program Files (x86)/IVI Foundation/VISA/winnt"
+VXIplug&play Framework 64-bit Dir = "/C/Program Files/IVI Foundation/VISA/win64"
+Number of Projects = 1
+Active Project = 1
+Project 0001 = "负载模拟器.prj"
+Drag Bar Left = 218
+Window Top = 153
+Window Left = 36
+Window Bottom = 499
+Window Right = 826
+Maximized = True
+Maximized Children = True
+Max32 Number Of Errors = 20
+Track Include File Dependencies = True
+Prompt For Missing Includes = True
+Stop On First Error File = False
+Bring Up Err Win At Start = True
+Bring Up Err Win For Errors = False
+Save Changes Before Running = "Always"
+Save Changes Before Compiling = "Always"
+Hide Windows = False
+Break At First Statement = False
+Sort Type = "File Name"
+Number of Opened Files = 4
+Window Confinement Region Enabled = True
+MainColumnWidth = 201
+FileDateColumnWidth = 70
+FileSizeColumnWidth = 70
+
+[Project Header 0001]
+Version = 1500
+Don't Update DistKit = False
+Platform Code = 4
+Build Configuration = "Debug"
+Warn User If Debugging Release = 1
+Batch Build Release = False
+Batch Build Debug = False
+
+[File 0001]
+Path = "/c/Program Files (x86)/National Instruments/CVI2015/toolslib/toolbox/inifile.fp"
+File Type = "Function Panel"
+Disk Date = 3517405200
+In Projects = "1,"
+
+[File 0002]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HILPanel.uir"
+File Type = "User Interface Resource"
+Disk Date = 3756602510
+In Projects = "1,"
+Window Top = 114
+Window Left = 51
+Window Height = 427
+Window Width = 679
+Window Z-Order = 4
+
+[File 0003]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HILPanel.c"
+File Type = "CSource"
+Disk Date = 3758007702
+In Projects = "1,"
+Window Top = 47
+Window Left = 13
+Window Z-Order = 2
+Source Window State = "1,1474,1474,1474,29,30,29,0,0,105,0,326,0,0,0,25,1422,0,1461,44,323,667,1,13,"
+
+[File 0004]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HPS_Controller.uir"
+File Type = "User Interface Resource"
+Disk Date = 3694834426
+In Projects = "1,"
+Window Top = 198
+Window Left = 96
+Window Height = 363
+Window Width = 679
+
+[File 0005]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/MainPanel.uir"
+File Type = "User Interface Resource"
+Disk Date = 3752188654
+In Projects = "1,"
+Window Top = 38
+Window Left = 6
+Window Height = 275
+Window Width = 492
+
+[File 0006]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/MotionPanel.uir"
+File Type = "User Interface Resource"
+Disk Date = 3756598686
+In Projects = "1,"
+Window Top = 58
+Window Left = 21
+Window Height = 427
+Window Width = 679
+
+[File 0007]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/OppsiteLoad.uir"
+File Type = "User Interface Resource"
+Disk Date = 3756595670
+In Projects = "1,"
+Window Top = 68
+Window Left = 162
+Window Height = 427
+Window Width = 679
+
+[File 0008]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/StaticPanel.uir"
+File Type = "User Interface Resource"
+Disk Date = 3754563676
+In Projects = "1,"
+Window Top = 58
+Window Left = 21
+Window Height = 427
+Window Width = 679
+
+[File 0009]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/Functions.c"
+File Type = "CSource"
+Disk Date = 3471179102
+In Projects = "1,"
+Window Top = 32
+Window Left = 10
+Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,323,517,1,0,"
+
+[File 0010]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HPS_Controller.c"
+File Type = "CSource"
+Disk Date = 3694834060
+In Projects = "1,"
+Window Top = 45
+Window Left = 10
+Source Window State = "1,78,78,78,4,16,16,1,0,0,0,411,0,0,0,0,473,0,491,0,323,517,1,30,"
+
+[File 0011]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/MainPanel.c"
+File Type = "CSource"
+Disk Date = 3694821032
+In Projects = "1,"
+Window Top = 45
+Window Left = 10
+Source Window State = "1,149,149,149,16,34,34,0,0,0,0,0,0,0,0,0,118,0,124,58,323,517,1,0,"
+
+[File 0012]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/MotionPanel.c"
+File Type = "CSource"
+Disk Date = 3756598816
+In Projects = "1,"
+Window Top = 32
+Window Left = 10
+Source Window State = "1,1024,1024,1024,66,67,66,0,3,0,0,676,0,0,0,0,1015,0,1024,67,323,673,1,14,"
+
+[File 0013]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/OppsiteLoad.c"
+File Type = "CSource"
+Disk Date = 3752359864
+In Projects = "1,"
+Window Top = 62
+Window Left = 26
+Source Window State = "1,297,297,297,64,79,79,0,3,0,0,254,0,0,0,0,254,0,297,64,323,649,1,14,"
+
+[File 0014]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/StaticPanel.c"
+File Type = "CSource"
+Disk Date = 3752311936
+In Projects = "1,"
+Window Top = 122
+Window Left = 58
+Source Window State = "1,1647,1647,1647,21,23,21,0,0,0,0,0,0,0,0,0,1693,0,1715,60,275,517,1,0,"
+
+[File 0015]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/VarDef.c"
+File Type = "CSource"
+Disk Date = 3689835304
+In Projects = "1,"
+Window Top = 62
+Window Left = 26
+Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,16,323,517,1,0,"
+
+[File 0016]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/DataMemory.h"
+File Type = "Include"
+Disk Date = 3481626184
+In Projects = "1,"
+Window Top = 62
+Window Left = 26
+Window Z-Order = 3
+Source Window State = "1,11,11,11,1,9,9,0,3,80,0,15,0,0,0,25,0,0,11,1,323,517,1,16,"
+
+[File 0017]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/ExchangeMemory.h"
+File Type = "Include"
+Disk Date = 3756004450
+In Projects = "1,"
+Window Top = 62
+Window Left = 26
+Source Window State = "1,47,47,47,8,15,15,0,0,0,0,0,0,0,0,0,28,0,44,14,323,517,1,11,"
+
+[File 0018]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/ExtraVar.h"
+File Type = "Include"
+Disk Date = 3756509604
+In Projects = "1,"
+Window Top = 62
+Window Left = 26
+Window Z-Order = 1
+Source Window State = "1,126,126,126,11,20,20,0,0,278,0,0,0,0,0,72,0,0,15,141,323,517,1,35,"
+
+[File 0019]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/Functions.h"
+File Type = "Include"
+Disk Date = 3694821090
+In Projects = "1,"
+Window Top = 179
+Window Left = 80
+Source Window State = "1,10,10,10,5,23,23,0,3,0,0,23,0,0,0,0,0,0,10,5,427,679,1,0,"
+
+[File 0020]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HILPanel.h"
+File Type = "Include"
+Disk Date = 3756602510
+In Projects = "1,"
+Window Top = 122
+Window Left = 58
+Source Window State = "1,123,123,123,9,30,30,0,3,0,0,125,0,0,0,0,111,0,123,9,323,517,1,14,"
+
+[File 0021]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HPS_Controller.h"
+File Type = "Include"
+Disk Date = 3694823332
+In Projects = "1,"
+Window Top = 32
+Window Left = 10
+Source Window State = "1,15,15,15,0,18,18,1,3,0,0,0,0,0,0,0,44,0,15,0,299,517,1,0,"
+
+[File 0022]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HPS_my.h"
+File Type = "Include"
+Disk Date = 3357028570
+In Projects = "1,"
+Window Top = 170
+Window Left = 81
+Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,37,44,363,679,1,0,"
+
+[File 0023]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/MainPanel.h"
+File Type = "Include"
+Disk Date = 3688252576
+In Projects = "1,"
+Window Top = 92
+Window Left = 38
+Source Window State = "1,16,16,16,9,18,18,0,0,0,0,0,0,0,0,0,0,0,16,20,323,510,1,0,"
+
+[File 0024]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/modbus.h"
+File Type = "Include"
+Disk Date = 3688166402
+In Projects = "1,"
+Window Top = 122
+Window Left = 58
+Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,323,517,1,0,"
+
+[File 0025]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/MotionPanel.h"
+File Type = "Include"
+Disk Date = 3756597440
+In Projects = "1,"
+Window Top = 32
+Window Left = 10
+Source Window State = "1,69,69,69,9,24,24,0,0,0,0,0,0,0,0,0,153,0,88,41,323,517,1,0,"
+
+[File 0026]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/OppsiteLoad.h"
+File Type = "Include"
+Disk Date = 3756595670
+In Projects = "1,"
+Window Top = 170
+Window Left = 81
+Source Window State = "1,24,24,24,9,33,33,0,3,0,0,0,0,0,0,0,121,0,24,9,411,679,1,0,"
+
+[File 0027]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/StaticPanel.h"
+File Type = "Include"
+Disk Date = 3752311938
+In Projects = "1,"
+Window Top = 31
+Window Left = 6
+Source Window State = "1,77,77,77,9,32,32,0,0,0,0,0,0,0,0,0,71,0,88,17,427,679,1,0,"
+
+[File 0028]
+Path = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/modbus.lib"
+File Type = "Library"
+Disk Date = 3687913088
+In Projects = "1,"
+
+[Tab Order]
+Tab 0001 = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HILPanel.uir"
+Tab 0002 = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/HILPanel.c"
+Tab 0003 = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/ExtraVar.h"
+Tab 0004 = "/d/hangchen/34_天兵/V20230131/上位机/CVIUI/DataMemory.h"
+
+[Default Build Config 0001 Debug]
+Generate Browse Info = True
+Enable Uninitialized Locals Runtime Warning = True
+Batch Build = False
+Profile = "Disabled"
+Debugging Level = "Standard"
+Execution Trace = "Disabled"
+Command Line Args = ""
+Working Directory = ""
+Environment Options = ""
+External Process Path = ""
+
+[Default Build Config 0001 Release]
+Generate Browse Info = True
+Enable Uninitialized Locals Runtime Warning = True
+Batch Build = False
+Profile = "Disabled"
+Debugging Level = "Standard"
+Execution Trace = "Disabled"
+Command Line Args = ""
+Working Directory = ""
+Environment Options = ""
+External Process Path = ""
+
+[Default Build Config 0001 Debug64]
+Generate Browse Info = True
+Enable Uninitialized Locals Runtime Warning = True
+Batch Build = False
+Profile = "Disabled"
+Debugging Level = "Standard"
+Execution Trace = "Disabled"
+Command Line Args = ""
+Working Directory = ""
+Environment Options = ""
+External Process Path = ""
+
+[Default Build Config 0001 Release64]
+Generate Browse Info = True
+Enable Uninitialized Locals Runtime Warning = True
+Batch Build = False
+Profile = "Disabled"
+Debugging Level = "Standard"
+Execution Trace = "Disabled"
+Command Line Args = ""
+Working Directory = ""
+Environment Options = ""
+External Process Path = ""
+
+[Build Dependencies 0001]
+Number of Dependencies = 0
+
+[Build Options 0001]
+Generate Browse Info = True
+Enable Uninitialized Locals Runtime Warning = True
+Execution Trace = "Disabled"
+Profile = "Disabled"
+Debugging Level = "Standard"
+Break On Library Errors = True
+Break On First Chance Exceptions = False
+
+[Execution Target 0001]
+Execution Target Address = "Local desktop computer"
+Execution Target Port = 0
+Execution Target Type = 0
+
+[SCC Options 0001]
+Use global settings = True
+SCC Provider = ""
+SCC Project = ""
+Local Path = ""
+Auxiliary Path = ""
+Perform Same Action For .h File As For .uir File = "Ask"
+Perform Same Action For .cds File As For .prj File = "Ask"
+Username = ""
+Comment = ""
+Use Default Username = False
+Use Default Comment = False
+Suppress CVI Error Messages = False
+Always show confirmation dialog = True
+
+[DLL Debugging Support 0001]
+External Process Path = ""
+
+[Command Line Args 0001]
+Command Line Args = ""
+Working Directory = ""
+Environment Options = ""
+

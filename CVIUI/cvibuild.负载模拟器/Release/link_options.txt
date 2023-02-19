@@ -1,0 +1,50 @@
+-nologo
+-out:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\负载模拟器.exe
+-arch:x86
+-timestamp
+-res:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\resources.res
+-entry:_CVIWinMainStartupCode@0
+-base:0x400000
+-linked:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\linkersummary.txt
+-dlldeps:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\dlldependencies.txt
+-licensing:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\linkerlicensing.txt
+-browsedeps:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\moduledependencies.txt
+-stackreserve:1048576
+-stackcommit:4096
+-in:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\Functions.obj
+-in:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\HILPanel.obj
+-in:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\HPS_Controller.obj
+-in:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\MainPanel.obj
+-in:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\MotionPanel.obj
+-in:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\OppsiteLoad.obj
+-in:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\StaticPanel.obj
+-in:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\cvibuild.负载模拟器\Release\VarDef.obj
+-more:c:\program files (x86)\national instruments\cvi2013\bin\msvc\cvistart.lib
+-more:c:\program files (x86)\national instruments\cvi2013\bin\msvc\cvi.lib
+-more:c:\program files (x86)\national instruments\cvi2013\sdk\lib\msvc\advapi32.lib
+-more:c:\ProgramData\National Instruments\CVI2013\bin\msvc\analysis.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\toolslib\toolbox\msvc\asynctmr.obj
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\cviauto.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\cviddc.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\cvidotnet.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\cvinetstreams.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\cvinetv.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\cvintwrk.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\cvitdms.lib
+-more:c:\program files (x86)\national instruments\cvi2013\sdk\lib\msvc\gdi32.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\gpib.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\toolslib\toolbox\msvc\inifile.obj
+-more:c:\Program Files (x86)\National Instruments\Shared\CVI\Bin\msvc\ivi.lib
+-more:c:\program files (x86)\national instruments\cvi2013\sdk\lib\msvc\kernel32.lib
+-more:d:\负载模拟器CVI-RT\软件\上位机\CVIUI5\CVIUI\modbus.lib
+-more:c:\Program Files (x86)\National Instruments\Shared\CVI\Bin\msvc\Modt.lib
+-more:c:\Program Files (x86)\National Instruments\Shared\CVI\Bin\msvc\nisyscfg.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\nivxi.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\bin\msvc\omp.lib
+-more:c:\Program Files (x86)\National Instruments\Shared\CVI\Bin\msvc\pid.lib
+-more:c:\Program Files (x86)\National Instruments\Shared\CVI\Bin\msvc\smt.lib
+-more:c:\Program Files (x86)\National Instruments\CVI2013\toolslib\toolbox\msvc\toolbox.obj
+-more:c:\program files (x86)\national instruments\cvi2013\sdk\lib\msvc\user32.lib
+-more:c:\program files (x86)\national instruments\cvi2013\sdk\lib\msvc\uuid.lib
+-more:c:\Program Files (x86)\National Instruments\Shared\CVI\Bin\msvc\visa.lib
+-more:c:\program files (x86)\national instruments\cvi2013\sdk\lib\msvc\winmm.lib

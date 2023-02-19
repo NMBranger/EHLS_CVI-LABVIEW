@@ -1,0 +1,116 @@
+[MotionPanelInit]
+Class="Function"
+Prototype="int MotionPanelInit();"
+
+[Mctrlparadown]
+Class="Function"
+Prototype="void Mctrlparadown();"
+
+[InitMotionCtrlSet]
+Class="Function"
+Prototype="void InitMotionCtrlSet();"
+
+[InitMotionTestPara]
+Class="Function"
+Prototype="void InitMotionTestPara();"
+
+[MotionSetScreenCycNum]
+Class="Function"
+Prototype="void MotionSetScreenCycNum();"
+
+[InitMotionDisIndex]
+Class="Function"
+Prototype="void InitMotionDisIndex();"
+
+[InitMotionCtrlPara]
+Class="Function"
+Prototype="void InitMotionCtrlPara();"
+
+[LightMotionParaSet]
+Class="Function"
+Prototype="void LightMotionParaSet();"
+
+[MotionPanelCallback]
+Class="Function"
+Prototype="int MotionPanelCallback(int panel, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionYRangeChangeCallback]
+Class="Function"
+Prototype="int MotionYRangeChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionSaveCallback]
+Class="Function"
+Prototype="int MotionSaveCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionRecordCallback]
+Class="Function"
+Prototype="int MotionRecordCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionExitCallback]
+Class="Function"
+Prototype="int MotionExitCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionResetCallback]
+Class="Function"
+Prototype="int MotionResetCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionStartCallback]
+Class="Function"
+Prototype="int MotionStartCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionCh1TesttypeChange]
+Class="Function"
+Prototype="int MotionCh1TesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionCh2TesttypeChange]
+Class="Function"
+Prototype="int MotionCh2TesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionCh3TesttypeChange]
+Class="Function"
+Prototype="int MotionCh3TesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionCh4TesttypeChange]
+Class="Function"
+Prototype="int MotionCh4TesttypeChange(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionSaveParaCallback]
+Class="Function"
+Prototype="int MotionSaveParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionSetParaCallback]
+Class="Function"
+Prototype="int MotionSetParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionOilControlCallback]
+Class="Function"
+Prototype="int MotionOilControlCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionDataReDisplay]
+Class="Function"
+Prototype="int MotionDataReDisplay(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionDisplayChangeCallback]
+Class="Function"
+Prototype="int MotionDisplayChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[AMotionDisplayChangeCallback]
+Class="Function"
+Prototype="int AMotionDisplayChangeCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionTabChanelSelect]
+Class="Function"
+Prototype="int MotionTabChanelSelect(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[NetWatchDog1]
+Class="Function"
+Prototype="int NetWatchDog1(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MotionDownParaCallback]
+Class="Function"
+Prototype="int MotionDownParaCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+
+[MEnablecallback]
+Class="Function"
+Prototype="int MEnablecallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);"
+

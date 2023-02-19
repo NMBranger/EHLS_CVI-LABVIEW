@@ -1,0 +1,21 @@
+%%
+K = 1;
+wn = 20*2*pi;
+xi = 0.8;
+Num = [K*wn*wn];
+Den = [1  2*xi*wn wn*wn]; 
+sys = tf(Num,Den);
+
+
+%%
+T = 0.001;
+sys_d = c2d(sys,T,'tustin');
+[numd,dend]=tfdata(sys_d,'v');
+
+bode(sys,sys_d);
+
+
+%%
+%FPGA 里面用的是定点数，32位，整数位为12，可以表示-2048到+2048之间的数，精度是9.5367E-7
+numd_1 = numd.*2^32
+dend_1 = dend.*2^32

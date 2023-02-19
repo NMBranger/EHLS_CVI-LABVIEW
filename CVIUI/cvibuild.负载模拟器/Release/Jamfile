@@ -1,0 +1,97 @@
+HDRS = 	"c:\\Program Files\\Ardence\\RTX SDK\\include"
+	"d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\activex\\word"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\activex\\excel"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\custctrl"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\custctrl\\custsupp"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\cvirtsup"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\datasock"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\daqUtil"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\printing"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\toolbox"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\reportgen"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\toolslib\\localui"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\instr"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\toolslib\\custctrl"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\toolslib\\custctrl\\custsupp"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\instr"
+	"C:\\ProgramData\\National Instruments\\CVI2013\\instr"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\include"
+	"C:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\include"
+	"C:\\ProgramData\\National Instruments\\CVI2013\\include"
+	"C:\\ProgramData\\National Instruments\\CVI\\include"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\include\\ansi"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\include\\clang\\2.9"
+	"C:\\Program Files (x86)\\IVI Foundation\\IVI\\Include"
+	"C:\\Program Files (x86)\\IVI Foundation\\VISA\\winnt\\include"
+	"c:\\program files (x86)\\national instruments\\cvi2013\\sdk\\include"
+	"c:\\Program Files (x86)\\National Instruments\\CVI2013\\bin"
+	"c:\\ProgramData\\National Instruments\\CVI2013\\bin"
+	"c:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\Bin"
+	;
+include Jamfile_instr ;
+LOCATE on "DataMemory.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "ExchangeMemory.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "ExtraVar.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "Functions.c" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "Functions.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "HILPanel.c" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "HILPanel.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "HPS_Controller.c" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "HPS_Controller.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "HPS_my.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "MainPanel.c" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "MainPanel.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "modbus.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "MotionPanel.c" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "MotionPanel.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "OppsiteLoad.c" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "OppsiteLoad.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "StaticPanel.c" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "StaticPanel.h" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+LOCATE on "VarDef.c" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\Functions.obj" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\Functions.c" ;
+FILENUM on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\Functions.obj" = 1 ;
+DEFPROTS on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\Functions.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\Functions.obj.cvidefprots" ;
+OUTFILE on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\Functions.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\Functions.obj.out" ;
+PrjObjects += "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\Functions.obj" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HILPanel.obj" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\HILPanel.c" ;
+FILENUM on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HILPanel.obj" = 2 ;
+DEFPROTS on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HILPanel.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HILPanel.obj.cvidefprots" ;
+OUTFILE on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HILPanel.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HILPanel.obj.out" ;
+PrjObjects += "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HILPanel.obj" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HPS_Controller.obj" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\HPS_Controller.c" ;
+FILENUM on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HPS_Controller.obj" = 3 ;
+DEFPROTS on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HPS_Controller.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HPS_Controller.obj.cvidefprots" ;
+OUTFILE on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HPS_Controller.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HPS_Controller.obj.out" ;
+PrjObjects += "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\HPS_Controller.obj" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MainPanel.obj" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\MainPanel.c" ;
+FILENUM on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MainPanel.obj" = 4 ;
+DEFPROTS on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MainPanel.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MainPanel.obj.cvidefprots" ;
+OUTFILE on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MainPanel.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MainPanel.obj.out" ;
+PrjObjects += "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MainPanel.obj" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MotionPanel.obj" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\MotionPanel.c" ;
+FILENUM on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MotionPanel.obj" = 5 ;
+DEFPROTS on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MotionPanel.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MotionPanel.obj.cvidefprots" ;
+OUTFILE on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MotionPanel.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MotionPanel.obj.out" ;
+PrjObjects += "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\MotionPanel.obj" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\OppsiteLoad.obj" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\OppsiteLoad.c" ;
+FILENUM on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\OppsiteLoad.obj" = 6 ;
+DEFPROTS on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\OppsiteLoad.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\OppsiteLoad.obj.cvidefprots" ;
+OUTFILE on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\OppsiteLoad.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\OppsiteLoad.obj.out" ;
+PrjObjects += "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\OppsiteLoad.obj" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\StaticPanel.obj" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\StaticPanel.c" ;
+FILENUM on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\StaticPanel.obj" = 7 ;
+DEFPROTS on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\StaticPanel.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\StaticPanel.obj.cvidefprots" ;
+OUTFILE on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\StaticPanel.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\StaticPanel.obj.out" ;
+PrjObjects += "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\StaticPanel.obj" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\VarDef.obj" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\VarDef.c" ;
+FILENUM on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\VarDef.obj" = 8 ;
+DEFPROTS on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\VarDef.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\VarDef.obj.cvidefprots" ;
+OUTFILE on "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\VarDef.obj" = "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\VarDef.obj.out" ;
+PrjObjects += "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\VarDef.obj" ;
+Object "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\resources.res" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\resources.in.rc" ;
+MainFromObjects "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\负载模拟器.exe" : $(PrjObjects) $(InstrObjects) ;
+Depends "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\负载模拟器.exe" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\link_options.txt" ;
+Depends "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\负载模拟器.exe" : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\resources.res" ;
+Depends all : "d:\\负载模拟器CVI-RT\\软件\\上位机\\CVIUI5\\CVIUI\\cvibuild.负载模拟器\\Release\\负载模拟器.exe" ;
